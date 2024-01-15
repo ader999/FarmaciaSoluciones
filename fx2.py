@@ -180,6 +180,7 @@ class Inicio():
 
             lb_capital=Label(f2,text="Capital: "+str(capital),fg="white", font=("Arial", 16,"bold"),bg=color_home).place(x=600,y=40)
             lb_ganancia = Label(f2, text="Gananancia: "+str(ganancias), fg="white", font=("Arial", 16, "bold"), bg=color_home).place(x=600,y=80)
+            print("Actualisacion desde github exitosa")
 
 
 
@@ -2275,7 +2276,6 @@ class Inicio():
 
 
 
-
 class verificar:
 
     def __init__(self):
@@ -2495,205 +2495,73 @@ class verificar:
 
 
 
+class PedirHora:
+    def __int__(self):
+        import subprocess
 
+        def cambiar_hora():
+            # Desactivar la sincronización automática de tiempo
+            subprocess.run(["sudo", "timedatectl", "set-ntp", "off"])
 
-class Ventana:
+            # Obtener los valores de las cajas de texto
+            año = entry_año.get()
+            mes = entry_mes.get()
+            dia = entry_dia.get()
+            hora = entry_hora.get()
+            minuto = entry_minuto.get()
 
+            # Formatear la fecha y hora
+            fecha_hora = f"{año}-{mes}-{dia} {hora}:{minuto}:00"
 
-    def __init__(self, master):
-        self.primeravez()
-        self.master = master
-        self.master.geometry("600x500")
+            # Construir el comando
+            comando = f"timedatectl set-time '{fecha_hora}'"
 
-        lb_ingrese_nombre_de_negocio = tk.Label(self.master, text="Ingrese nombre del negocio").pack()
-        self.caja_nombre_negocio = ttk.Entry(self.master)
-        self.caja_nombre_negocio.pack()
+            # Ejecutar el comando
+            subprocess.run(["pkexec", "bash", "-c", comando])
 
-        lb_ingrese_nombre_del_propietario = tk.Label(self.master, text="Ingrese nombre del propietario").pack()
-        self.caja_nombre_propietario = ttk.Entry(self.master)
-        self.caja_nombre_propietario.pack()
+            # Volver a activar la sincronización automática de tiempo
+            subprocess.run(["sudo", "timedatectl", "set-ntp", "on"])
 
-        lb_ingrese_apellido_del_propietario = tk.Label(self.master, text="Ingrese apellido del propietario").pack()
-        self.caja_apellido_propietario = ttk.Entry(self.master)
-        self.caja_apellido_propietario.pack()
+            ventana.destroy()
+            verificar()
 
-        lb_ingrese_contraseña = tk.Label(self.master, text="Ingrese contraseña").pack()
-        self.caja_contraseña = ttk.Entry(self.master)
-        self.caja_contraseña.pack()
+        # Crear la ventana principal
+        ventana =   Tk()
+        ventana.title("Cambiar Hora")
 
-        lb_ingrese_su_direccion = tk.Label(self.master, text="Ingrese la direcion").pack()
-        self.caja_nombre_direccion = ttk.Entry(self.master)
-        self.caja_nombre_direccion.pack()
+        # Crear y colocar las etiquetas y cajas de texto
+        ttk.Label(ventana, text="Año:").grid(row=0, column=0, padx=5, pady=5)
+        entry_año = ttk.Entry(ventana)
+        entry_año.grid(row=0, column=1, padx=5, pady=5)
 
-        lb_ingrese_numero_telefono = tk.Label(self.master, text="Ingrese el telefono del negocio").pack()
-        self.caja_numero_telefono = ttk.Entry(self.master)
-        self.caja_numero_telefono.pack()
+        ttk.Label(ventana, text="Mes:").grid(row=1, column=0, padx=5, pady=5)
+        entry_mes = ttk.Entry(ventana)
+        entry_mes.grid(row=1, column=1, padx=5, pady=5)
 
-        lb_ingrese_numero_ruc = tk.Label(self.master, text="Ingrese su numero ruc").pack()
-        self.caja_numero_ruc = ttk.Entry(self.master)
-        self.caja_numero_ruc.pack()
+        ttk.Label(ventana, text="Día:").grid(row=2, column=0, padx=5, pady=5)
+        entry_dia = ttk.Entry(ventana)
+        entry_dia.grid(row=2, column=1, padx=5, pady=5)
 
-        negocios=["FERRETERIA","FARMACIA","PULPERIA"]
-        lb_selecione_negocio = tk.Label(self.master, text="Seleccione el tipo de negocio").pack()
-        self.cb_negocio = ttk.Combobox(self.master,values=negocios)
-        self.cb_negocio.pack()
+        ttk.Label(ventana, text="Hora:").grid(row=3, column=0, padx=5, pady=5)
+        entry_hora = ttk.Entry(ventana)
+        entry_hora.grid(row=3, column=1, padx=5, pady=5)
 
+        ttk.Label(ventana, text="Minuto:").grid(row=4, column=0, padx=5, pady=5)
+        entry_minuto = ttk.Entry(ventana)
+        entry_minuto.grid(row=4, column=1, padx=5, pady=5)
 
+        # Botón para cambiar la hora
+        btn_cambiar_hora = ttk.Button(ventana, text="Cambiar Hora", command=cambiar_hora)
+        btn_cambiar_hora.grid(row=5, column=0, columnspan=2, pady=10)
 
-
-        self.boton = tk.Button(self.master, text="Siguiente", command=self.crear_widget)
-        self.boton.pack(side="bottom")
-
-    def primeravez(self):
-        import sqlite3
-        try:
-            # Crear una conexión a la base de datos
-            conexion = sqlite3.connect('basededatos.db')
-
-            # Crear la tabla usando una consulta SQL
-            conexion.execute('''CREATE TABLE "product" (
-                "id"	INTEGER NOT NULL,
-                "name"	TEXT NOT NULL,
-                "price"	REAL NOT NULL,
-                "cantidad"	REAL NOT NULL,
-                "fecha_vencimiento"	TEXT,
-                "cantidad_sin_ganansia"	REAL,
-                "mesProximoDevovlucion"	INTEGER,
-                "descuento"	INTEGER,
-                "cantidad_xmayor"	INTEGER,
-                PRIMARY KEY("id" AUTOINCREMENT)
-            );''')
-            conexion.execute("""CREATE TABLE "usuario" (
-                "idusr"	INTEGER NOT NULL,
-                "nombre"	TEXT NOT NULL,
-                "apellido"	TEXT NOT NULL,
-                "numero_telefono"	TEXT,
-                "numero_cedula"	TEXT,
-                "contraseña"	TEXT NOT NULL,
-                "permisos"	TEXT NOT NULL,
-                PRIMARY KEY("idusr" AUTOINCREMENT)
-            );""")
-
-            conexion.execute("""CREATE TABLE "configuraciones" (
-                "id"	INTEGER NOT NULL,
-                "nombre_cf"	REAL NOT NULL,
-                "atributos"	NUMERIC NOT NULL,
-                PRIMARY KEY("id" AUTOINCREMENT)
-            );""")
-            conexion.execute("""CREATE TABLE "credito" (
-                "id"	INTEGER NOT NULL,
-                "nombre"	TEXT NOT NULL,
-                "apellido"	REAL NOT NULL,
-                "sexo"	REAL NOT NULL,
-                "deuda"	REAL NOT NULL,
-                "codigo"	TEXT NOT NULL,
-                "cantidad_masima_f"	INTEGER,
-                PRIMARY KEY("id" AUTOINCREMENT)
-            );""")
-            conexion.execute("""CREATE TABLE "notificaciones" (
-                "nombre_n"	INTEGER,
-                "fecha"	INTEGER
-            );""")
-            conexion.execute("""CREATE TABLE "product_en_creditos" (
-                "idpecre"	INTEGER NOT NULL,
-                "nombre"	TEXT NOT NULL,
-                "precio"	TEXT NOT NULL,
-                "fecha"	TEXT NOT NULL,
-                "codigo_cliente"	TEXT NOT NULL,
-                "cantidad"	TEXT NOT NULL,
-                PRIMARY KEY("idpecre" AUTOINCREMENT)
-            );""")
-            conexion.execute("""CREATE TABLE "registro_ventas" (
-                "idrv"	INTEGER NOT NULL,
-                "nombre"	INTEGER NOT NULL,
-                "precio"	REAL NOT NULL,
-                "fecha"	INTEGER NOT NULL,
-                "usuario"	INTEGER NOT NULL,
-                "cantidad"	INTEGER,
-                "identificador"	INTEGER,
-                PRIMARY KEY("idrv" AUTOINCREMENT)
-            );""")
-
-            ventana()
-
-
-
-
-        except:
-            print("La base de datos ya existes prosedemos")
-    def Destruir(self):
-        root.destroy()
-        verificar()
-
-
-
-    def crear_widget(self):
-        terminos_y_condiciones = """Términos y condiciones del programa de Inventario
-
-                                            Bienvenido al programa de Inventario. Antes de 
-                                            utilizar este programa, es importante que leas y comprendas los siguientes términos y condiciones:
-
-                                            Uso del programa: Al utilizar este programa, aceptas que el objetivo principal 
-                                            es entrenar una inteligencia artificial. El programa puede acceder a tus datos y utilizarlos para este propósito.
-
-
-                                            Pérdida de datos: No nos hacemos responsables por cualquier pérdida de datos que 
-                                            pueda ocurrir al utilizar este programa. Te recomendamos que realices una copia de seguridad de tus datos antes de utilizar el programa.
-
-
-                                            Seguridad de los datos: Nos comprometemos a mantener la seguridad y confidencialidad 
-                                            de tus datos. Utilizamos medidas de seguridad para proteger tus datos contra el acceso no autorizado, la pérdida y la alteración.
-
-
-                                            Uso de los datos: Los datos que se recopilan mediante este programa se utilizarán 
-                                            únicamente para el entrenamiento de la inteligencia artificial. No se utilizarán para ningún otro propósito sin tu consentimiento previo.
-
-                                            Propiedad de los datos: Tú eres el propietario de tus datos y conservas todos los 
-                                            derechos sobre ellos. No nos hacemos propietarios de tus datos ni de los resultados del programa de entrenamiento de inteligencia artificial.
-
-                                            Actualizaciones del programa: Podemos actualizar o modificar este programa en cualquier 
-                                            momento. Te recomendamos que revises estos términos y condiciones periódicamente para conocer los cambios más recientes.
-
-                                            Aceptación de los términos y condiciones: Al utilizar este programa, aceptas los 
-                                            términos y condiciones establecidos en este documento.
-
-                                            Si no estás de acuerdo con estos términos y condiciones, te recomendamos que no utilices este programa."""
-
-        query="INSERT INTO usuario VALUES (NULL, ?, ?, ?, ?, ?, ?)"
-        parameters=(self.caja_nombre_propietario.get(),self.caja_apellido_propietario.get(),self.caja_numero_telefono.get(),"",self.caja_contraseña.get(),"root")
-        ConecionSql().run_query(query,parameters)
-
-        query="INSERT INTO configuraciones VALUES(NULL,'color_menu','aqua'),(NULL,'color_tabla','white'),(NULL,'nombre_negocio',?)"
-        ConecionSql().run_query(query,parameters=(self.caja_nombre_negocio.get(),))
-
-        query = "INSERT INTO configuraciones VALUES (NULL,'dollar','36')"
-        ConecionSql().run_query(query,)
-
-
-
-        # Eliminar los widgets de la ventana
-        for widget in self.master.winfo_children():
-            widget.destroy()
-
-        # Crear un nuevo widget
-        textt=st.ScrolledText(self.master)
-        textt.delete("1.0", "20000.0")
-        textt.insert("1.0",terminos_y_condiciones)
-        textt.pack()
-        cbb=tk.Checkbutton(self.master,text="E leido los terminos y condiciones").pack()
-        bt_estoy_deacuerdo=tk.Button(self.master,text="Estoy de acuerdo con los terminos y condiciones",command=self.Destruir).pack()
+        # Iniciar el bucle principal de Tkinter
+        ventana.mainloop()
 
 
 if __name__ == '__main__':
 
-        import os
+        verificar()
 
-        archivo_db = "basededatos.db"
-        if os.path.isfile(archivo_db):
-            verificar()
 
-        else:
-            import tkinter as tk
-            root = tk.Tk()
-            ventana = Ventana(root)
-            root.mainloop()
+
+
