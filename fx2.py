@@ -594,13 +594,14 @@ class Inicio():
                         try:
 
 
-                            
-                            p_total = float
+
+                            p_total = 0.0
+
                             if t > 0:
                                 total = t
                             else: p_total = total
                             cambio = float(sumando_monedas) - float(p_total)
-                            cambio = cambio = "{0:.2f}".format(cambio)
+                            cambio = "{0:.2f}".format(cambio)
                             if CheckVar1.get() != 1:
                                 if float(sumando_monedas < float(p_total)):
                                     lb_mb_e['text'] = "{}".format("Error el pago es menor al total de los productos")
