@@ -9,7 +9,7 @@ import hashlib
 import random
 import sys
 import os
-
+import calendar
 from sql import Others as ConecionSql
 from hora import creando_a_hora as hr
 
@@ -90,6 +90,8 @@ class Funciones():
                     sum(char in digits for char in pwd) >= 2):
                 break
         return pwd
+
+
 
 
 
@@ -279,9 +281,64 @@ class Inicio():
                 return ganancia_hoy.set("Error")
 
 
+        def MirandoQueProductoSeEstanPorCaducar():
+            def obtener_fecha_actual():
+                dateTimeObj = datetime.now()
+                timestampStr = dateTimeObj.strftime("%Y-%m-%d-%H-%M-%S")
+                return timestampStr.split()[0]
+
+            def obtener_fecha_vencimiento(fecha_str):
+                try:
+                    fecha_vencimiento_obj = datetime.strptime(fecha_str, "%d/%m/%Y")
+                    return fecha_vencimiento_obj
+                except ValueError:
+                    print("Error: La fecha de vencimiento no tiene el formato esperado.")
+                    return None
+
+            def mostrar_alerta_producto(producto_nombre):
+                mensaje = f"El Producto {producto_nombre} está por vencer."
+                mb.showinfo("Estado de producto", mensaje)
+
+            query = "SELECT name, fecha_vencimiento, mesProximoDevovlucion FROM product"
+            datoss = ConecionSql().run_query(query).fetchall()
+            fecha_actual = obtener_fecha_actual()
+
+            for datos in datoss:
+                fecha_alerta = datos[2]
+                fecha_vencimiento = str(datos[1])
+
+                if fecha_alerta is None:
+                    continue
+
+                try:
+                    int(fecha_alerta)
+                    fecha_vencimiento_obj = obtener_fecha_vencimiento(fecha_vencimiento)
+                    if fecha_vencimiento_obj is None:
+                        continue
+
+                    if fecha_vencimiento_obj >= datetime.now():
+                        dias_hasta_vencimiento = (fecha_vencimiento_obj - datetime.now()).days
+
+                        if dias_hasta_vencimiento <= int(fecha_alerta):
+                            mostrar_alerta_producto(datos[0])
+
+                except ValueError:
+                    print("Error: La fecha de alerta no es un número válido.")
+
+
+
+
+
+
+
 
 
         def Facturar():
+            try:
+              MirandoQueProductoSeEstanPorCaducar()
+            except:
+                mb.showinfo('','')
+
             def TotalFactura():
                 total = 0.0
 
