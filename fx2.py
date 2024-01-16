@@ -4,7 +4,7 @@ from PIL import ImageTk, Image
 from tkinter import ttk
 from tkinter import messagebox as mb
 from tkinter import scrolledtext as st
-from datetime import datetime
+from datetime import datetime, timedelta
 import hashlib
 import random
 import sys
@@ -161,6 +161,46 @@ class Inicio():
 
 
         def default_home():
+            def ProductosApuntoDeVencer():
+                # Obtener la fecha actual
+                fecha_actual = datetime.now()
+
+                # Consulta a la base de datos para obtener la información de los productos
+                query = "SELECT name, fecha_vencimiento, mesProximoDevovlucion FROM product"
+                datos = ConecionSql().run_query(query).fetchall()
+
+                # Lista para almacenar los productos a punto de vencer
+                productos_apunto_de_vencer = []
+
+                # Iterar sobre los datos de la base de datos
+                for producto in datos:
+                    nombre_producto, fecha_vencimiento, meses_proximo_vencimiento = producto
+
+                    # Verificar si las fechas no están vacías y no son None
+                    if fecha_vencimiento and meses_proximo_vencimiento and meses_proximo_vencimiento != 'None':
+                        # Convertir las fechas de texto a objetos datetime
+                        try:
+                            fecha_vencimiento = datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                            meses_proximo_vencimiento = int(meses_proximo_vencimiento)
+                        except ValueError as e:
+                            # Manejar la excepción (puedes imprimir un mensaje o hacer algo más)
+                            print(f"Error al convertir fechas para el producto {nombre_producto}: {e}")
+                            continue  # Continuar con el siguiente producto
+
+                        # Calcular la fecha de alerta basada en meses_proximo_vencimiento
+                        fecha_alerta = fecha_vencimiento - timedelta(days=30 * meses_proximo_vencimiento)
+
+                        # Verificar si el producto está a punto de vencer
+                        if fecha_actual > fecha_alerta and fecha_actual <= fecha_vencimiento:
+                            productos_apunto_de_vencer.append(nombre_producto)
+                            mb.showwarning("Producto Apunto de venserce",nombre_producto +": "+ str(fecha_vencimiento))
+
+            try:
+                ProductosApuntoDeVencer()
+            except:
+                mb.showerror("Algo fallo")
+
+
             color_home="#262626"
 
             f2 = Frame(w, width=1400, height=dimension_altura, bg=color_home)
@@ -1108,6 +1148,12 @@ class Inicio():
                    if int(d[1])== 0:
                     lista_todos_los_datos_productos.insert(padre,'end',text=d[0],values=('','',d[1],))
 
+            def LimpiarTabla():
+                recoriendo = lista_todos_los_datos_productos.get_children()
+                for r in recoriendo:
+                  # Elimina cada elemento de la tabla
+                  lista_todos_los_datos_productos.delete(r)
+
             def MirandoQueProductoSeEstanPorCaducar():
 
                     # Crea una etiqueta para elementos mayores que cero
@@ -1145,9 +1191,10 @@ class Inicio():
                         # Formatea la fecha actual para poder compararla con la fecha de vencimiento
                         far = str(fechaActual.replace("-", " "))
                         farl = far.split()
-                        print(farl[2])
-                        print(fvrl[2])
+
                         try:
+                            print(farl[2])
+                            print(fvrl[2])
                             farl[2]
                         except : continue
                         # Si el año de la fecha de vencimiento es mayor o igual al año actual, entonces se comparan el mes y el día
@@ -1173,13 +1220,99 @@ class Inicio():
                             lista_todos_los_datos_productos.insert("", END, text=datos[0], values=('', '', datos[1],))
                             print("fin")
 
+            def obtener_productos_vencidos():
+                LimpiarTabla()
+                # Obtener la fecha actual
+                fecha_actual = datetime.now()
+
+                # Consulta a la base de datos para obtener la información de los productos
+                query = "SELECT name, fecha_vencimiento, mesProximoDevovlucion FROM product"
+                datos = ConecionSql().run_query(query).fetchall()
+
+                # Lista para almacenar los productos vencidos
+                productos_vencidos = []
+
+                # Iterar sobre los datos de la base de datos
+                for producto in datos:
+                    nombre_producto, fecha_vencimiento, fecha_alerta = producto
+
+                    # Verificar si las fechas no están vacías y no son None
+                    if fecha_vencimiento and fecha_alerta and fecha_alerta != 'None':
+                        # Convertir las fechas de texto a objetos datetime
+                        try:
+                            fecha_vencimiento = datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                            # Verificar si fecha_alerta es una cadena antes de intentar convertirla
+                            if isinstance(fecha_alerta, str):
+                                fecha_alerta = datetime.strptime(fecha_alerta, "%d/%m/%Y")
+                            else:
+                                raise ValueError("Fecha de alerta no es una cadena")
+                        except ValueError as e:
+                            # Manejar la excepción (puedes imprimir un mensaje o hacer algo más)
+                            print(f"Error al convertir fechas para el producto {nombre_producto}: {e}")
+                            continue  # Continuar con el siguiente producto
+
+                        # Verificar si el producto está vencido
+                        if fecha_actual > fecha_vencimiento:
+                            productos_vencidos.append(nombre_producto)
+                            lista_todos_los_datos_productos.insert("", END, text=nombre_producto, values=('', '','', fecha_vencimiento,))
+
+
+            def ProductosApuntoDeVencer():
+                LimpiarTabla()  # Limpiar la tabla antes de agregar nuevos productos
+
+                # Obtener la fecha actual
+                fecha_actual = datetime.now()
+
+                # Consulta a la base de datos para obtener la información de los productos
+                query = "SELECT name, fecha_vencimiento, mesProximoDevovlucion FROM product"
+                datos = ConecionSql().run_query(query).fetchall()
+
+                # Lista para almacenar los productos a punto de vencer
+                productos_apunto_de_vencer = []
+
+                # Iterar sobre los datos de la base de datos
+                for producto in datos:
+                    nombre_producto, fecha_vencimiento, meses_proximo_vencimiento = producto
+
+                    # Verificar si las fechas no están vacías y no son None
+                    if fecha_vencimiento and meses_proximo_vencimiento and meses_proximo_vencimiento != 'None':
+                        # Convertir las fechas de texto a objetos datetime
+                        try:
+                            fecha_vencimiento = datetime.strptime(fecha_vencimiento, "%d/%m/%Y")
+                            meses_proximo_vencimiento = int(meses_proximo_vencimiento)
+                        except ValueError as e:
+                            # Manejar la excepción (puedes imprimir un mensaje o hacer algo más)
+                            print(f"Error al convertir fechas para el producto {nombre_producto}: {e}")
+                            continue  # Continuar con el siguiente producto
+
+                        # Calcular la fecha de alerta basada en meses_proximo_vencimiento
+                        fecha_alerta = fecha_vencimiento - timedelta(days=30 * meses_proximo_vencimiento)
+
+                        # Verificar si el producto está a punto de vencer
+                        if fecha_actual > fecha_alerta and fecha_actual <= fecha_vencimiento:
+                            productos_apunto_de_vencer.append(nombre_producto)
+                            lista_todos_los_datos_productos.insert("", END, text=nombre_producto, values=('', '', '', fecha_vencimiento,))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
             def RadioButoonAdministrarProducto():
-                if valor.get() == 1:
-                    ProductosApuntoAgotarse()
+                if valor.get() == 3:
+                    ProductosApuntoDeVencer()
                 elif valor.get() == 2:
-                    MirandoQueProductoSeEstanPorCaducar()
+                    obtener_productos_vencidos()
+                elif valor.get() == 4:
+                    octener_todos_los_productos()
                 else: octener_todos_los_productos()
 
 
@@ -1276,8 +1409,8 @@ class Inicio():
             rd_p_apunto_de_vencer = ttk.Radiobutton(f2, text="Productos apunto de vencer", variable=valor, value=3,command=RadioButoonAdministrarProducto)
             rd_p_apunto_de_vencer.place(x=890, y=eje_y_widget_producto)
 
-            rd_p_apunto_de_vencer = ttk.Radiobutton(f2, text="Todos los productos", variable=valor, value=3,command=RadioButoonAdministrarProducto)
-            rd_p_apunto_de_vencer.place(x=1080, y=eje_y_widget_producto)
+            rd_p_apunto_de_vencer = ttk.Radiobutton(f2, text="Todos los productos", variable=valor, value=4,command=RadioButoonAdministrarProducto)
+            rd_p_apunto_de_vencer.place(x=1120, y=eje_y_widget_producto)
 
             # Menu ppo____________________________________________
             if permiso_usr == 'root':
