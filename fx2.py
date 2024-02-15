@@ -2179,6 +2179,19 @@ class Inicio():
 
                 vte_editar_programa.mainloop()
 
+            def Actualizar():
+                try:
+                    resultado = os.system("git pull")
+                    if resultado == 0:
+                        mb.showinfo("Actualización", "¡El programa ha sido actualizado exitosamente!")
+                    elif resultado == 256:
+                        mb.showinfo("Actualización", "El programa ya está actualizado.")
+                    else:
+                        mb.showerror("Error", "Hubo un problema al intentar actualizar el programa.")
+                except Exception as e:
+                    mb.showerror("Error", f"No se pudo actualizar el programa: {str(e)}")
+
+
 
             def Usuarios():
                 def OctenerUsuarios():
@@ -2365,6 +2378,7 @@ class Inicio():
                 bt_usuarios = Button(f2, text='Usuarios', command=lambda: ContrsañaDelAdmin(dato="usuario")).place(x=560, y=200)
             bt_cambiar_conytaseña = Button(f2, text="Cambiar contraseña", command=lambda :ContrsañaDelAdmin(dato="cambiar")).place(x=350,y=250)
             bt_estilos = Button(f2, text="Editar interfas", command=EditarInterfas).place(x=540, y=250)
+            bt_actualizar = Button(text="Actualizar Programa",command=Actualizar).place(x=350,y=350)
 
 
 
