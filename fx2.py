@@ -700,7 +700,7 @@ class Inicio():
                             cambio = float(sumando_monedas) - float(p_total)
                             cambio = "{0:.2f}".format(cambio)
                             if CheckVar1.get() != 1:
-                                if float(sumando_monedas < float(p_total)):
+                                if float(sumando_monedas < float(p_total) or sumando_monedas < t):
                                     lb_mb_e['text'] = "{}".format("Error el pago es menor al total de los productos")
                                     return
                         except Exception as e:
@@ -714,7 +714,7 @@ class Inicio():
                         cf_vt.destroy()
                         if CheckVar1 == 1:
                             mb.showinfo("Exito", "El buelto del cambio del dollar es: " + str(cambio))
-                        mb.showinfo("Exito", "El vuelto es: " + str(total-sumando_monedas))
+                        mb.showinfo("Exito", "El vuelto es: " + str(sumando_monedas-total))
 
 
                         print('esta es la contra: ' + clave_producto)
