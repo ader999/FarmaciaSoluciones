@@ -714,7 +714,7 @@ class Inicio():
                         cf_vt.destroy()
                         if CheckVar1 == 1:
                             mb.showinfo("Exito", "El buelto del cambio del dollar es: " + str(cambio))
-                        mb.showinfo("Exito", "El vuelto es: " + str(sumando_monedas-t))
+                        mb.showinfo("Exito", "El vuelto es: " + str(total-sumando_monedas))
 
 
                         print('esta es la contra: ' + clave_producto)
