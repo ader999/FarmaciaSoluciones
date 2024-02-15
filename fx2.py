@@ -287,12 +287,12 @@ class Inicio():
             parameters = (OctenerFecha()[1] + '%',)
             total_ventas_hoy = ConecionSql().run_query(query, parameters).fetchall()[0][0]
 
-            total_hoy.set("Total de hoy: " + str(total_ventas_hoy))
+            total_hoy.set("Total de hoy.: " + str(total_ventas_hoy))
 
         def calcular_ganancia_hoy():
             try:
                 fecha_hoy = OctenerFecha()[1]
-                print("Fecha de hoy:", fecha_hoy)
+                print("Fecha de hoy.:", fecha_hoy)
 
                 # Query para obtener los productos vendidos en el día con sus cantidades
                 query_ventas = 'SELECT nombre, cantidad FROM registro_ventas WHERE fecha LIKE ?'
