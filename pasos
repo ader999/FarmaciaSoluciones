@@ -1,5 +1,0 @@
- pip install pyautogui
- 
- xhost +  
- 
- xhost + fx2.py    

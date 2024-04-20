@@ -2,4 +2,5 @@ basededatos.db
 database.db
 registro
 __pycache__
-
+servidor.py
+templates

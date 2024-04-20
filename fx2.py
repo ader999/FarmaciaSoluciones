@@ -95,6 +95,8 @@ class Funciones():
 
 
 
+
+
 funcion= Funciones
 
 class Inicio():
@@ -281,6 +283,12 @@ class Inicio():
                 fecha=timestampStr.split()[0]
                 mes_año =dateTimeObj.strftime("%d-%m-%Y").split()[0]
                 return fecha,año_mes,hora,mes_año
+
+        def RegistrarEvento(accion, odgeto):
+            query = "INSERT INTO notificaciones(nombre_n,fecha) values(?,?)"
+            noti = f"El usuario: ({nombre_usr}): {accion} ({odgeto})"
+            parameters = (noti, OctenerFecha()[0])
+            ConecionSql().run_query(query, parameters)
 
         def OctenerTotalDeHoy():
             query = "SELECT SUM(precio*cantidad) FROM registro_ventas WHERE fecha LIKE ?"
@@ -565,6 +573,7 @@ class Inicio():
                     return
 
                 vt_inPA = Toplevel()
+                vt_inPA.resizable(False,False)
                 vt_inPA.attributes("-topmost", True)
                 lb_insetar_cantidad_p= Label(vt_inPA,text='Inserte cantidad a vender').grid(row=0,column=0)
                 caja_inser_cantidad_p = ttk.Entry(vt_inPA)
@@ -1023,11 +1032,9 @@ class Inicio():
                 query = 'DELETE FROM product WHERE name = ?'
                 ConecionSql().run_query(query, (name,))
                 mb.showinfo("Exito✅", "El producto se a borrado")
+
                 octener_todos_los_productos()
-                query="INSERT INTO notificaciones(nombre_n,fecha) values(?,?)"
-                noti= "El usuario: "+nombre_usr+" borro el producto: "+name
-                parameters=(noti,OctenerFecha()[0])
-                ConecionSql().run_query(query,parameters)
+                RegistrarEvento('Borro el producto',name)
 
 
 
@@ -1824,11 +1831,14 @@ class Inicio():
 
 
             def DetallesVentas():
-                def InDatosScrollText(event,d):
-                    if d == 1:
-                        fecha=caja_buscar_registro_en_archivos.get()
-                    else:
-                        fecha=OctenerFecha()[3]
+                def InDatosScrollText():
+
+                    fecha= day_entry.get()+'-'+month_entry.get()+'-'+year_entry.get()
+                    print(fecha+"jksqjkasjk")
+                    if fecha == "--":
+                        print("Erorrrrr")
+                        fecha = OctenerFecha()[3]
+
 
                     nombre_archivo= fecha+".txt"
                     try:
@@ -1850,14 +1860,10 @@ class Inicio():
                 vte_detalles_ventas.title("Registro Factura")
                 scrolledtext1=st.ScrolledText(vte_detalles_ventas, width=94, height=23)
                 scrolledtext1.grid(row=0,column=0,columnspan=10)
-                caja_buscar_registro_en_archivos=ttk.Entry(vte_detalles_ventas,width=30)
-                caja_buscar_registro_en_archivos.grid(row=1,column=0,pady=10)
-                bt_buscar_registro_en_archivos=Button(vte_detalles_ventas,text="Buscar",command=lambda :InDatosScrollText("",d=1)).grid(row=1,column=1,pady=10)
-                lb_mensaje_buscar_fecha_error = Label(vte_detalles_ventas,text="",textvariable=text_var,fg="#a0000a").grid(row=1,column=2)
-                caja_buscar_registro_en_archivos.bind("<Return>", lambda event: InDatosScrollText(event, d=1))
 
 
-                InDatosScrollText(" ",d=0)
+
+                InDatosScrollText()
                 vte_detalles_ventas.mainloop()
 
 
@@ -1871,12 +1877,74 @@ class Inicio():
                     for r in recorer:
                         tree.delete(r)
                     #query = "SELECT * from registro_ventas fecha"
-                    query = 'SELECT * FROM registro_ventas ORDER BY nombre ASC LIMIT 100;'
-                    datos = ConecionSql().run_query(query, )
+                    query = 'SELECT * FROM registro_ventas WHERE fecha LIKE ?'
+                    datos = ConecionSql().run_query(query,parameters=(str(OctenerFecha()[1])+'%',))
                     # Insertar los datos de la tabla en el TreeView
                     for producto in datos:
                         tree.insert("", "end", text=producto[1],
                                     values=(producto[2], producto[3], producto[4], producto[5], producto[6],producto[7]))
+
+                def Devolver():
+                    producto, cantidad, codigo, fecha = "",0,"",""
+                    seleccion = tree.focus()
+
+                    # Obtener los valores de la fila seleccionada
+                    producto = tree.item(seleccion)["text"]
+                    cantidad = tree.item(seleccion)["values"][3]
+                    codigo = tree.item(seleccion)["values"][4]
+                    fecha = tree.item(seleccion)["values"][1]
+                    valores_fila = tree.item(seleccion)["values"]
+
+                    fecha_actual = OctenerFecha()[1]
+
+                    fecha = fecha.split('-')
+                    fecha = fecha[0]+fecha[1]+fecha[2]
+
+                    fecha_actual = fecha_actual.split('-')
+                    fecha_actual = fecha_actual[0]+fecha_actual[1]+fecha_actual[2]
+
+                    if fecha != fecha_actual:
+                        mb.showwarning("Error","Este producto ya no se puede devolver")
+                        return
+
+                    # Imprimir los valores de la fila seleccionada
+                    print("Datos seleccionados:", producto,' ',cantidad,' ',codigo,' ',fecha)
+
+                    resultado = mb.askyesno("Confirmacion","Estas seguro que deseas devolver este producto")
+
+                    if resultado:
+
+
+                        query="SELECT cantidad FROM product WHERE name =?"
+                        dato= ConecionSql().run_query(query,parameters=(producto,)).fetchall()[0][0]
+                        print('repuesta de consulta: ',dato)
+
+                        cantidad = cantidad + dato
+
+                        query = '''UPDATE product
+                                 SET cantidad = ?
+                                 WHERE name = ?'''
+                        try:
+                            ConecionSql().run_query(query,parameters=(cantidad,producto))
+                            mb.showinfo("Exito",f"Devolucion exitosa el stock del producto ahora es ({cantidad})")
+
+                            query='''DELETE FROM registro_ventas
+                            WHERE nombre = ? and identificador = ?
+                            '''
+                            ConecionSql().run_query(query,parameters=(producto,codigo))
+
+                        except Exception as e:
+                            mb.showerror("Error: "+ e)
+
+                        RegistrarEvento("Hizo devolucion",producto)
+                        OctenerRegistro()
+
+                    else:
+                        print("Accion cancelada")
+                        return
+
+
+
 
 
 
@@ -1903,6 +1971,28 @@ class Inicio():
                 # Configurar el Scrollbar horizontal
                 scrollbar_x = ttk.Scrollbar(parent, orient="horizontal", command=tree.xview)
                 tree.configure(xscrollcommand=scrollbar_x.set)
+
+
+                # Menu ppo____________________________________________
+
+
+                popup = Menu(parent, tearoff=0)
+
+                # Adding Menu Items
+                popup.add_command(label="Devolver", command=Devolver)
+                popup.add_separator()
+                popup.add_command(label="Abrir en venta detallada", command= DetallesVentas)
+
+                def menu_popup(event):
+                    # display the popup menu
+                    try:
+                        popup.tk_popup(event.x_root, event.y_root, 0)
+                    finally:
+                        # Release the grab
+                        popup.grab_release()
+
+                tree.bind("<Button-3>", menu_popup)
+                # END_Menu ppo____________________________________________
 
                 tree.pack(fill="both", expand=True)
                 scrollbar_x.pack(fill="x")
@@ -2017,6 +2107,10 @@ class Inicio():
 
             # Agregar el TreeView dentro del LabelFrame con Scrollbar
             treeview = create_treeview(label_frame_right)
+
+
+
+
 
 
 
@@ -2191,6 +2285,26 @@ class Inicio():
                 except Exception as e:
                     mb.showerror("Error", f"No se pudo actualizar el programa: {str(e)}")
 
+
+            def Servidor():
+                from flask import Flask, render_template, request
+                import cv2
+                import pyzbar
+
+                app = Flask(__name__)
+
+                @app.route('/')
+                def index():
+                    return render_template('index.html')
+
+                @app.route('/procesar_codigo', methods=['POST'])
+                def procesar_codigo():
+                    codigo = request.form['codigo']
+                    # Aquí puedes procesar el código escaneado
+                    return 'Código escaneado: {}'.format(codigo)
+
+                if __name__ == '__main__':
+                    app.run(host='192.168.0.101', port=5001, debug=True)
 
 
             def Usuarios():
@@ -2379,6 +2493,7 @@ class Inicio():
             bt_cambiar_conytaseña = Button(f2, text="Cambiar contraseña", command=lambda :ContrsañaDelAdmin(dato="cambiar")).place(x=350,y=250)
             bt_estilos = Button(f2, text="Editar interfas", command=EditarInterfas).place(x=540, y=250)
             bt_actualizar = Button(text="Actualizar Programa",command=Actualizar).place(x=350,y=350)
+            bt_servidor = Button(text="Activar Servidor",command=Servidor).place(x=550,y=350)
 
 
 
@@ -2415,7 +2530,7 @@ class Inicio():
             bttn(0, 184, 'PRODUCTO             ', color_menu, color_menu, AdministrarProduct,"iconos/database.png")
             bttn(0, 236, 'clientes             ', color_menu, color_menu, Clientes,"iconos/cliente.png")
             bttn(0, 288, 'REGISTRO             ', color_menu, color_menu, Registro,"iconos/facturar.png")
-            bttn(0, 340, 'NOTIFICACIONES       ', color_menu, color_menu, Notificaciones, "iconos/notificacion.png")
+            bttn(0, 340, 'EVENTOS       ', color_menu, color_menu, Notificaciones, "iconos/notificacion.png")
             bttn(0, 392, 'AJUSTES              ', color_menu, color_menu, Ajustes, "iconos/ajuste.png")
 
             #
