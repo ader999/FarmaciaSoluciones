@@ -2521,7 +2521,7 @@ class Inicio():
             bt_estilos = Button(f2, text="Editar interfas", command=EditarInterfas).place(x=540, y=250)
             bt_actualizar = Button(text="Actualizar Programa",command=Actualizar).place(x=350,y=350)
             bt_servidor = Button(text="Activar Servidor",command=Servidor).place(x=550,y=350)
-            lb_version = Label(text='Vercion: 4.1.0',font=("Helvetica", 16, "bold"),fg=color_fondo).place(x=350, y=450)
+            lb_version = Label(text='Vercion: 4.1.1',font=("Helvetica", 16, "bold"),fg=color_fondo).place(x=350, y=450)
 
 
 
