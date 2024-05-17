@@ -1731,14 +1731,18 @@ class Inicio():
                     fecha = f"{year}-{month}-%"
 
                 # Consulta SQL para buscar registros de ventas
-                query = "SELECT * FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?"
-                parameters = (fecha, cb_usearios.get())
+                if len(cb_usearios.get()) > 0:
+                    query = "SELECT * FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?"
+                    parameters = (fecha, cb_usearios.get())
+                else:
+                    query = "SELECT * FROM registro_ventas WHERE fecha LIKE ?"
+                    parameters = (fecha,)
 
                 # Realizar la consulta y obtener los resultados
                 try:
 
                     datos = ConecionSql().run_query(query, parameters).fetchall()
-                except ConecionSql.Error as e:
+                except TypeError as e:
                     mb.showerror("Error de Base de Datos", f"Error al ejecutar la consulta: {e}")
                     return
 
@@ -1759,20 +1763,27 @@ class Inicio():
 
 
                 try:
-
-                    query = "SELECT SUM((precio * cantidad)  * (descuento / 100)) AS total FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?;"
+                    if len(cb_usearios.get()) > 0:
+                        query = "SELECT SUM((precio * cantidad)  * (descuento / 100)) AS total FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?;"
+                    else:
+                        query = "SELECT SUM((precio * cantidad)  * (descuento / 100)) AS total FROM registro_ventas WHERE fecha LIKE ?;"
                     descuento_result = ConecionSql().run_query(query, parameters).fetchone()
-                    descuento = descuento_result[0] if descuento_result is not None else 0
+                    descuento = descuento_result[0] if descuento_result[0] is not None else 0
                     print('------/',str(descuento))
-                    total_query = "SELECT SUM(precio * cantidad) FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?;"
+
+                    if len(cb_usearios.get()) > 0:
+                        total_query = "SELECT SUM(precio * cantidad) FROM registro_ventas WHERE fecha LIKE ? AND usuario LIKE ?;"
+                    else:
+                        total_query = "SELECT SUM(precio * cantidad) FROM registro_ventas WHERE fecha LIKE ?;"
                     total_final = ConecionSql().run_query(total_query, parameters).fetchone()
-                    total = total_final[0] if total_final is not None else 0
+
+                    total = total_final[0] if total_final[0] is not None else 0
 
                     total_result = total - descuento
 
 
 
-                except ConecionSql.Error as e:
+                except ValueError as e:
                     mb.showerror("Error de Base de Datos", f"Error al obtener el total: {e}")
                     return
 
@@ -1803,9 +1814,9 @@ class Inicio():
                 recorer = treeview.get_children()
 
 
-                fecha = year_entry.get() + "-" + month_entry.get() + "-" + day_entry.get() + "-" + hour_entry.get() + "%"
-                if day_entry.get() == "":
-                    fecha = year_entry.get() + "-" + month_entry.get() + "-" + '%'
+                fecha = year_entry2.get() + "-" + month_entry2.get() + "-" + day_entry2.get() + "-" + hour_entry2.get() + "%"
+                if day_entry2.get() == "":
+                    fecha = year_entry2.get() + "-" + month_entry2.get() + "-" + '%'
 
                 query = "SELECT * FROM registro_ventas  WHERE fecha LIKE ?"
                 parameters = (fecha,)
@@ -1831,9 +1842,10 @@ class Inicio():
 
 
             def DetallesVentas():
+
                 def InDatosScrollText():
 
-                    fecha= day_entry.get()+'-'+month_entry.get()+'-'+year_entry.get()
+                    fecha= day_entry2.get()+'-'+month_entry2.get()+'-'+year_entry2.get()
                     print(fecha+"jksqjkasjk")
                     if fecha == "--":
                         print("Erorrrrr")
@@ -2002,18 +2014,25 @@ class Inicio():
                 return tree
 
             f1.destroy()
-            # Crear un Frame principal usando place
-            main_frame = Frame(w, width=dimension_ancho, height=700,bg=color_fondo)
+
+            main_frame = Frame(w, width=dimension_ancho, height=700, bg=color_fondo)
             main_frame.place(x=0, y=45)
 
-            # Crear el LabelFrame con cajas y etiquetas dentro del Frame principal
             label_frame_left = ttk.LabelFrame(main_frame, text="Filtrar registros", padding=10)
             label_frame_left.place(x=20, y=10, width=400, height=650)
 
+            lista_usuarios = ConecionSql().run_query(query="SELECT  nombre from usuario").fetchall()
+            nombres_usuarios = [usuario[0] for usuario in lista_usuarios]
 
 
+            """ # Crear un Frame principal usando place
+            
 
+            # Crear el LabelFrame con cajas y etiquetas dentro del Frame principal
+           
 
+            
+            
 
             # Agregar cajas y etiquetas dentro del LabelFrame
             label_text = StringVar()
@@ -2044,6 +2063,7 @@ class Inicio():
             hour_entry = Entry(label_frame_left)
             hour_entry.grid(row=4, column=1)
 
+
             submit_button = Button(label_frame_left, text="Buscar", command=BuscarRegistro).grid(row=5, column=1)
 
             separator_vertical = ttk.Separator(label_frame_left, orient='horizontal')
@@ -2052,11 +2072,11 @@ class Inicio():
             separator_vertical2.grid(row=6, column=1, sticky='ew', padx=0, pady=20)
             separator_vertical3 = ttk.Separator(label_frame_left, orient='horizontal')
             separator_vertical3.grid(row=6, column=0, sticky='ew', padx=0, pady=20)
+            """
 
-
-
-            lista_usuarios=ConecionSql().run_query(query="SELECT  nombre from usuario").fetchall()
-            nombres_usuarios = [usuario[0] for usuario in lista_usuarios]
+            label_text = StringVar()
+            label_text.set("Total:           ")
+            lb_total = ttk.Label(label_frame_left, textvariable=label_text, font=26).grid(row=0, column=0)
 
             lb_selecione_usuario= Label(label_frame_left,text="Usuario")
             lb_selecione_usuario.grid(row=8,column=0)
@@ -2099,7 +2119,7 @@ class Inicio():
             separator_vertical3 = ttk.Separator(label_frame_left, orient='horizontal')
             separator_vertical3.grid(row=14, column=0, sticky='ew', padx=0, pady=20)
 
-            Detalles_Venta = Button(label_frame_left, text="Detalles de ventas", command=DetallesVentas,width=35).grid(row=15,column=0,columnspan=2)
+
 
             # Crear el LabelFrame con el TreeView y el Scrollbar dentro del Frame principal
             label_frame_right = ttk.LabelFrame(main_frame, text="Detalles de registros", padding=10)
@@ -2278,10 +2298,14 @@ class Inicio():
                     resultado = os.system("git pull")
                     if resultado == 0:
                         mb.showinfo("Actualización", "¡El programa ha sido actualizado exitosamente!")
+                        #reiniciar el programa
+                        python = sys.executable
+                        os.execl(python, python, *sys.argv)
                     elif resultado == 256:
                         mb.showinfo("Actualización", "El programa ya está actualizado.")
                     else:
                         mb.showerror("Error", "Hubo un problema al intentar actualizar el programa.")
+
                 except Exception as e:
                     mb.showerror("Error", f"No se pudo actualizar el programa: {str(e)}")
 
@@ -2494,6 +2518,7 @@ class Inicio():
             bt_estilos = Button(f2, text="Editar interfas", command=EditarInterfas).place(x=540, y=250)
             bt_actualizar = Button(text="Actualizar Programa",command=Actualizar).place(x=350,y=350)
             bt_servidor = Button(text="Activar Servidor",command=Servidor).place(x=550,y=350)
+            lb_version = Label(text='Vercion: 4.1.0',font=("Helvetica", 16, "bold"),fg=color_fondo).place(x=350, y=450)
 
 
 
