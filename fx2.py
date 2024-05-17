@@ -2299,8 +2299,11 @@ class Inicio():
                     if resultado == 0:
                         mb.showinfo("Actualización", "¡El programa ha sido actualizado exitosamente!")
                         #reiniciar el programa
-                        python = sys.executable
-                        os.execl(python, python, *sys.argv)
+                        respuesta = mb.askyesno("Confirmación","¿Desea reiniciar la aplicación para aplicar los cambios?")
+                        if respuesta:
+                            # Reiniciar la aplicación
+                            python = sys.executable
+                            os.execl(python, python, *sys.argv)
                     elif resultado == 256:
                         mb.showinfo("Actualización", "El programa ya está actualizado.")
                     else:
