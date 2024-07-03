@@ -1,9 +1,10 @@
+import threading
 from tkinter import *
-
 from PIL import ImageTk, Image
 from tkinter import ttk
 from tkinter import messagebox as mb
 from tkinter import scrolledtext as st
+import servidor
 from datetime import datetime, timedelta
 import hashlib
 import random
@@ -12,6 +13,9 @@ import os
 import calendar
 from sql import Others as ConecionSql
 from hora import creando_a_hora as hr
+import subprocess
+
+
 
 #pantalla= "microp"
 pantalla="pc 1440x900"
@@ -1302,17 +1306,6 @@ class Inicio():
 
 
 
-
-
-
-
-
-
-
-
-
-
-
             def RadioButoonAdministrarProducto():
                 if valor.get() == 3:
                     ProductosApuntoDeVencer()
@@ -2080,7 +2073,7 @@ class Inicio():
 
             lb_selecione_usuario= Label(label_frame_left,text="Usuario")
             lb_selecione_usuario.grid(row=8,column=0)
-            cb_usearios= ttk.Combobox(label_frame_left,values=nombres_usuarios)
+            cb_usearios= ttk.Combobox(label_frame_left,values=nombres_usuarios,state="readonly")
             cb_usearios.grid(row=8,column=1,pady=10)
             #cb_usearios.bind("<<ComboboxSelected>>",BusquedaUsuarios)
 
@@ -2109,15 +2102,6 @@ class Inicio():
             hour_entry2.grid(row=12, column=1)
 
             submit_button2 = Button(label_frame_left, text="Buscar", command=BusquedaRegistroUsuarioAvanzada).grid(row=13, column=1)
-
-
-
-            separator_vertical = ttk.Separator(label_frame_left, orient='horizontal')
-            separator_vertical.grid(row=14, column=0, sticky='ew', padx=0, pady=20)
-            separator_vertical2 = ttk.Separator(label_frame_left, orient='horizontal')
-            separator_vertical2.grid(row=14, column=1, sticky='ew', padx=0, pady=20)
-            separator_vertical3 = ttk.Separator(label_frame_left, orient='horizontal')
-            separator_vertical3.grid(row=14, column=0, sticky='ew', padx=0, pady=20)
 
 
 
@@ -2170,11 +2154,25 @@ class Inicio():
             def Dollar():
 
                 def ConsultandoPresioAPI():
+                    def actualizar_barra():
+                        if progressbar["value"] < 100:
+                            progressbar["value"] += 1
+                            vte_ajustar_dolar.after(100, actualizar_barra)
+
                     import requests
+
                     headers = {"apikey": "82jpOtQTn58eKCJM4K1QB2SKT6RiiDG7"}
                     params = {"to": "NIO", "from": "USD", "amount": 1}
 
                     try:
+
+                        import time
+                        time.sleep(5)  # Simulación de 5 segundos de procesamiento
+
+                        # Ocultar la barra de progreso cuando termine la petición
+                        progressbar.stop()
+                        progressbar.place_forget()
+
                         response = requests.get("https://api.apilayer.com/exchangerates_data/convert", headers=headers,
                                                 params=params)
                         if response.status_code != 200:
@@ -2220,6 +2218,11 @@ class Inicio():
                 lb_nuevo_precio_dollar = Label(vte_ajustar_dolar, text='Nuevo precio').place(x=5,y=45)
                 caja_dollar = ttk.Entry(vte_ajustar_dolar)
                 caja_dollar.place(x=100,y=45)
+
+                # Barra de progreso
+                progressbar = ttk.Progressbar(vte_ajustar_dolar, orient="horizontal", length=200, mode="determinate")
+                progressbar.place(x=50, y=60)
+
                 Button(vte_ajustar_dolar, text="Actualizar", command=ActualizandoDollar).place(x=100,y=75)
 
                 vte_ajustar_dolar.mainloop()
@@ -2295,11 +2298,18 @@ class Inicio():
 
             def Actualizar():
                 try:
+                    # Actualizar desde Git
                     resultado = os.system("git pull")
+
                     if resultado == 0:
                         mb.showinfo("Actualización", "¡El programa ha sido actualizado exitosamente!")
-                        #reiniciar el programa
-                        respuesta = mb.askyesno("Confirmación","¿Desea reiniciar la aplicación para aplicar los cambios?")
+
+                        # Instalar dependencias si hay cambios
+                        subprocess.run(["pip", "install", "-r", "requirements.txt"])
+
+                        # Reiniciar el programa
+                        respuesta = mb.askyesno("Confirmación",
+                                                "¿Desea reiniciar la aplicación para aplicar los cambios?")
                         if respuesta:
                             # Reiniciar la aplicación
                             python = sys.executable
@@ -2313,25 +2323,15 @@ class Inicio():
                     mb.showerror("Error", f"No se pudo actualizar el programa: {str(e)}")
 
 
+
+
+
+            def iniciar_servidor():
+                threading.Thread(target=servidor.run_server, daemon=True).start()
+
+
             def Servidor():
-                from flask import Flask, render_template, request
-                import cv2
-                import pyzbar
-
-                app = Flask(__name__)
-
-                @app.route('/')
-                def index():
-                    return render_template('index.html')
-
-                @app.route('/procesar_codigo', methods=['POST'])
-                def procesar_codigo():
-                    codigo = request.form['codigo']
-                    # Aquí puedes procesar el código escaneado
-                    return 'Código escaneado: {}'.format(codigo)
-
-                if __name__ == '__main__':
-                    app.run(host='192.168.0.101', port=5001, debug=True)
+                iniciar_servidor()
 
 
             def Usuarios():
@@ -2521,7 +2521,9 @@ class Inicio():
             bt_estilos = Button(f2, text="Editar interfas", command=EditarInterfas).place(x=540, y=250)
             bt_actualizar = Button(text="Actualizar Programa",command=Actualizar).place(x=350,y=350)
             bt_servidor = Button(text="Activar Servidor",command=Servidor).place(x=550,y=350)
-            lb_version = Label(text='Vercion: 4.1.1',font=("Helvetica", 16, "bold"),fg=color_fondo).place(x=350, y=450)
+            lb_version = Label(text='Vercion: 4.1.1',font=("Helvetica", 16, "bold"),fg=color_fondo).place(x=550, y=450)
+
+
 
 
 

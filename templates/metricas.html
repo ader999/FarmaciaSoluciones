@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Métricas - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Métricas de Ventas</h1>
+
+    <h2 class="my-4">Top 5 Productos Más Vendidos</h2>
+    <div class="text-center">
+        <img src="data:image/png;base64,{{ top_products_plot_url }}" alt="Top 5 Productos Más Vendidos" class="img-fluid">
+    </div>
+
+    <h2 class="my-4">Ventas Totales por Hora</h2>
+    <div class="text-center">
+        <img src="data:image/png;base64,{{ hourly_sales_plot_url }}" alt="Ventas Totales por Hora" class="img-fluid">
+        <p>
+            Esta grafica se utiliza para mostrar cuánto se vende por cada hora durante el día, desde las 5 de la mañana hasta las 10 de la noche. Ayuda a identificar cuáles son las horas de mayor y menor venta, lo que es muy útil para tomar decisiones como ajustar los horarios del personal o gestionar el inventario de manera más eficiente. Con esta información, los gerentes pueden asegurarse de tener suficientes empleados y productos disponibles en las horas de mayor actividad, mejorando así el servicio al cliente y las ventas.
+        </p>
+    </div>
+
+
+
+    <h2 class="my-4">Promedio de Ventas por Usuario</h2>
+    <div class="text-center">
+        <img src="data:image/png;base64,{{ average_sales_plot_url }}" alt="Promedio de Ventas por Usuario" class="img-fluid">
+        <p>
+            este grafico te da una lista de usuarios junto con el promedio de sus ventas, ordenada de mayor a menor promedio de ventas. Es útil para analizar el desempeño de ventas de cada usuario y determinar quiénes están generando más ingresos en promedio.
+        </p>
+    </div>
+
+</div>
+{% endblock %}

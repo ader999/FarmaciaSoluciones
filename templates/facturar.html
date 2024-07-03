@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+<h1 class="mt-2">Facturar producto</h1>
+<input type="text" id="searchTerm" placeholder="Buscar producto...">
+
+<div class="table-responsive">
+    <table id="searchResults" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los resultados de búsqueda se insertarán aquí -->
+        </tbody>
+    </table>
+</div>
+
+<h2>Productos seleccionados</h2>
+<div class="table-responsive">
+    <table id="selectedProducts" class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Sub total</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+<h3>Total: C$<span id="total" class="text-primary">0.00</span> $<span id="total_dollars" class="text-success">0.00</span></h3>
+
+<div class="mt-2">
+    <label for="paymentAmount">Cantidad con la que se está pagando:</label>
+    <input type="number" id="paymentAmount" class="form-control" placeholder="Ingrese la cantidad" min="0">
+</div>
+
+
+<!-- Botón para limpiar la tabla -->
+<button id="clearTable" class="btn btn-danger mt-2">Limpiar Datos</button>
+<button id="vender" class="btn btn-success mt-2">Vender</button>
+
+
+
+<!-- Modal para mostrar el vuelto y los detalles de la venta -->
+<div class="modal fade" id="ventaModal" tabindex="-1" aria-labelledby="ventaModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ventaModalLabel">Venta Exitosa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Detalles de la venta:</h6>
+                <table id="ventaDetalles" class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Cantidad</th>
+                            <th>Sub total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Detalles de la venta se insertarán aquí -->
+                    </tbody>
+                </table>
+                <h6>Total en C$:</h6> <span id="modalTotalCordobas"></span>
+                <h6>Total en $:</h6> <span id="modalTotalDolares"></span>
+                <h6>Vuelto:</h6> <span id="vuelto"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="printVenta">Imprimir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script src="{{ url_for('static', filename='js/ventas.js') }}"></script>
+
+
+{% endblock %}

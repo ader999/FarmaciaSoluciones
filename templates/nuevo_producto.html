@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+    <h1>Agregar Nuevo Producto</h1>
+
+    <form action="/nuevo_producto" method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required><br><br>
+        <label for="price">Precio:</label>
+        <input type="number" id="price" name="price" step="0.01" required><br><br>
+        <label for="cantidad">Cantidad:</label>
+        <input type="number" id="cantidad" name="cantidad" step="0.01" required><br><br>
+        <label for="fecha_vencimiento">Fecha de Vencimiento:</label>
+        <input type="date" id="fecha_vencimiento" name="fecha_vencimiento"><br><br>
+        <label for="cantidad_sin_ganansia">Cantidad Sin Ganancia:</label>
+        <input type="number" id="cantidad_sin_ganansia" name="cantidad_sin_ganansia" step="0.01"><br><br>
+        <label for="mesProximoDevovlucion">Mes Próximo Devolución:</label>
+        <input type="number" id="mesProximoDevovlucion" name="mesProximoDevovlucion"><br><br>
+        <label for="descuento">Descuento:</label>
+        <input type="number" id="descuento" name="descuento"><br><br>
+        <label for="cantidad_xmayor">Cantidad Por Mayor:</label>
+        <input type="number" id="cantidad_xmayor" name="cantidad_xmayor"><br><br>
+        <input type="submit" value="Agregar Producto">
+    </form>
+{% endblock %}

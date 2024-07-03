@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+<h1>Registros de Ventas</h1>
+
+<form method="post" action="/registros">
+    <label for="fecha">Fecha:</label>
+    <input type="date" id="fecha" name="fecha">
+    <br>
+    <label for="usuario">Usuario:</label>
+    <input type="text" id="usuario" name="usuario">
+    <button type="submit">Filtrar</button>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Cantidad</th>
+                <th>Identificador</th>
+                <th>Descuento</th>
+            </tr>
+        </thead>
+        <tbody id="ventasTableBody">
+            {% for registro in registros %}
+                <tr ondblclick="verRegistro('{{ registro[3] }}')" data-identificador="{{ registro[6] }}">
+                    <td>{{ registro[0] }}</td>
+                    <td>{{ registro[1] }}</td>
+                    <td>{{ registro[2] }}</td>
+                    <td>{{ registro[3] }}</td>
+                    <td>{{ registro[4] }}</td>
+                    <td>{{ registro[5] }}</td>
+                    <td>{{ registro[6] }}</td>
+                    <td>{{ registro[7] }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal para mostrar el contenido del registro -->
+<div class="modal fade" id="registroModal" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registroModalLabel">Contenido del Registro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <pre id="registroContenido"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function verRegistro(fecha) {
+        console.log("Fecha seleccionada:", fecha);
+        const [year, month, day] = fecha.split('-');
+        const fechaConvertida = `${day}-${month}-${year}.txt`;
+        console.log("Fecha convertida:", fechaConvertida);
+
+        fetch(`/ver_registro_txt/${fechaConvertida}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Contenido del registro:", data.contenido);
+                    document.getElementById('registroContenido').textContent = data.contenido;
+                    var registroModal = new bootstrap.Modal(document.getElementById('registroModal'));
+                    registroModal.show();
+                } else {
+                    alert('No se encontró el archivo de registro.');
+                }
+            })
+            .catch(error => {
+                console.error('Error al obtener el registro:', error);
+            });
+    }
+
+    // Aplicar colores alternos a los grupos
+    let currentIdentifier = null;
+    let colorIndex = 0;
+    const colors = ['table-light', 'table-primary'];
+
+    $('#ventasTableBody tr').each(function() {
+        let identifier = $(this).data('identificador');
+        if (identifier !== currentIdentifier) {
+            currentIdentifier = identifier;
+            colorIndex = (colorIndex + 1) % 2;
+        }
+        $(this).addClass(colors[colorIndex]);
+    });
+
+    document.querySelectorAll('table.table tbody tr').forEach(function(row) {
+        row.ondblclick = function() {
+            verRegistro(this.cells[3].innerText);
+        };
+    });
+});
+</script>
+{% endblock %}

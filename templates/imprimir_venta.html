@@ -1,0 +1,48 @@
+<!-- imprimir_venta.html -->
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impresión de Venta</title>
+    <style>
+        /* Estilos CSS personalizados pueden ir aquí */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Detalles de la Venta</h1>
+
+        <!-- Aquí puedes mostrar los detalles de la venta recibidos desde Flask -->
+        <h2>Total en Córdobas: <span id="modalTotalCordobas">{{ totalCordobas }}</span></h2>
+        <h2>Total en Dólares: <span id="modalTotalDolares">{{ totalDolares }}</span></h2>
+        <h2>Vuelto: <span id="vuelto">{{ vuelto }}</span></h2>
+
+        <h3>Productos Vendidos:</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.precio | floatformat(2) }}</td>
+                    <td>{{ producto.cantidad }}</td>
+                    <td>{{ producto.subtotal | floatformat(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button onclick="window.print()">Imprimir</button>
+        <a href="/" class="btn btn-primary">Volver a Inicio</a>
+    </div>
+</body>
+</html>

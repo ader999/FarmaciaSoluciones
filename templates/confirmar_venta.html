@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Venta{% endblock %}
+
+{% block content %}
+<h1 class="mt-2">Confirmar Venta</h1>
+<form id="confirmarVentaForm" method="POST">
+    <div class="form-group">
+        <label for="cordobas">Monto en Córdobas</label>
+        <input type="number" step="0.01" class="form-control" id="cordobas" name="cordobas" required>
+    </div>
+    <div class="form-group">
+        <label for="dolares">Monto en Dólares</label>
+        <input type="number" step="0.01" class="form-control" id="dolares" name="dolares" required>
+    </div>
+    <button type="submit" class="btn btn-success">Confirmar Venta</button>
+    <a href="{{ url_for('facturar') }}" class="btn btn-danger">Cancelar</a>
+</form>
+<script>
+    document.getElementById('confirmarVentaForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var cordobas = document.getElementById('cordobas').value;
+        var dolares = document.getElementById('dolares').value;
+
+        fetch('/confirmar_venta', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                totalCordobas: cordobas,
+                totalDolares: dolares,
+                productos: {{ productos|tojson }}
+            })
+        }).then(response => response.json()).then(data => {
+            if (data.redirect) {
+                window.location.href = data.redirect;
+            }
+        });
+    });
+</script>
+{% endblock %}

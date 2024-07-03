@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>Administrar Producto</h1>
+    <input type="text" id="searchTerm" class="form-control" placeholder="Buscar producto...">
+
+    <div class="table-responsive">
+        <table id="searchResults" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Fecha de Vencimiento</th>
+                    <th>Descuento</th>
+                    <th>Cantidad por Mayor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los resultados de búsqueda se insertarán aquí -->
+                {% for product in products %}
+                <tr>
+                    <td>{{ product[0] }}</td>
+                    <td>{{ product[1] }}</td>
+                    <td>{{ product[2] }}</td>
+                    <td>{{ product[3] }}</td>
+                    <td>{{ product[4] }}</td>
+                    <td>{{ product[7] }}</td>
+                    <td>{{ product[8] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#searchTerm').on('keyup', function() {
+        var term = $(this).val();
+        $.ajax({
+            type: 'POST',
+            url: '/buscar_producto',
+            data: { term: term },
+            success: function(response) {
+                var rows = '';
+                response.forEach(function(product) {
+                    rows += `
+                    <tr>
+                        <td>${product[0]}</td>
+                        <td>${product[1]}</td>
+                        <td>${product[2]}</td>
+                        <td>${product[3]}</td>
+                        <td>${product[4]}</td>
+                        <td>${product[7]}</td>
+                        <td>${product[8]}</td>
+                    </tr>`;
+                });
+                $('#searchResults tbody').html(rows);
+            }
+        });
+    });
+});
+</script>
+
+
+{% endblock %}
+

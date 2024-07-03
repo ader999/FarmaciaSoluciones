@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container mt-2">
+
+
+
+
+
+
+
+    <div class="text-center">
+        <h2 class="my-4">Ventas Totales por Hora - Día Actual</h2>
+        <img src="data:image/png;base64,{{ hourly_sales_plot_url_today }}" alt="Ventas Totales por Hora - Día Actual" class="img-fluid">
+    </div>
+
+    <div class="text-center mt-4">
+        <h2>Resumen del Día</h2>
+        <p>Total de Ventas: {{ total_ventas }}</p>
+        <p>{{ total_ganancias }}</p>
+    </div>
+</div>
+
+
+{% with messages = get_flashed_messages(category_filter=['danger']) %}
+  {% if messages %}
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+      <div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+          <strong class="me-auto">Error de permisos</strong>
+          <button type="button" class="btn-close text-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          {{ messages[0] }}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Mostrar el toast al cargar la página si hay un mensaje de error
+      document.addEventListener('DOMContentLoaded', function () {
+        var toastEl = document.querySelector('.toast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      });
+    </script>
+  {% endif %}
+{% endwith %}
+
+
+{% endblock %}

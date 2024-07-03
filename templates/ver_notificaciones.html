@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Notificaciones - Mi Proyecto Flask{% endblock %}
+
+{% block content %}
+
+<h1>Registro de eventos</h1>
+
+<form method="post" action="/notificaciones">
+    <label for="fecha_inicio">Fecha Inicio:</label>
+    <input type="date" id="fecha_inicio" name="fecha_inicio">
+    <label for="fecha_fin">Fecha Fin:</label>
+    <input type="date" id="fecha_fin" name="fecha_fin">
+    <button type="submit">Filtrar</button>
+</form>
+
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <tr>
+            <th>Nombre</th>
+            <th>Fecha</th>
+        </tr>
+        {% for notificacion in notificaciones %}
+        <tr>
+            <td>{{ notificacion[0] }}</td>
+            <td>{{ notificacion[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}
