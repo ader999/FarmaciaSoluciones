@@ -649,6 +649,8 @@ def run_server():
                 break
 
         print("La dirección IP es:", mi_ip)
+        if mi_ip == None:
+            mi_ip = "localhost"
 
         return mi_ip
 
