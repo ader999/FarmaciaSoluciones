@@ -348,7 +348,7 @@ def facturar():
 def buscar():
     term = request.form['term']
     print(f"Buscando término: {term}")  # Agregar print para debug
-    query = "SELECT * FROM product WHERE name LIKE ?"
+    query = "SELECT * FROM product WHERE name LIKE ? LIMIT 10"
     parameters = ('%' + term + '%',)
     results = ConecionSql().run_query(query, parameters).fetchall()
     print(f"Resultados encontrados: {results}")  # Agregar print para debug
@@ -443,7 +443,7 @@ def metricas():
     # Obtener datos de los productos más vendidos
     top_products_data = queries.get_top_5_products()
     products = [row[0] for row in top_products_data]
-    quantities = [row[1] for row in top_products_data]
+    quantities = [row[1] if row[1] is not None else 0 for row in top_products_data]
 
     # Generar gráfico de top 5 productos más vendidos
     top_products_plot_url = generate_bar_chart(products, quantities,
@@ -453,19 +453,17 @@ def metricas():
     # Obtener datos de las ventas por hora
     hourly_sales_data = queries.get_sales_per_hour()
     hours = [row[0] for row in hourly_sales_data]
-    sales = [row[1] for row in hourly_sales_data]
+    sales = [row[1] if row[1] is not None else 0 for row in hourly_sales_data]
 
     # Generar gráfico de ventas totales por hora
     hourly_sales_plot_url = generate_line_chart(hours, sales,
                                                 'Ventas Totales por Hora',
                                                 'Hora', 'Ventas Totales')
 
-
-
     # Obtener datos del promedio de ventas por usuario
     average_sales_data = queries.get_average_sales_per_user()
     users = [row[0] for row in average_sales_data]
-    average_sales = [row[1] for row in average_sales_data]
+    average_sales = [row[1] if row[1] is not None else 0 for row in average_sales_data]
 
     # Generar gráfico de promedio de ventas por usuario
     average_sales_plot_url = generate_horizontal_bar_chart(users, average_sales,
@@ -474,7 +472,7 @@ def metricas():
 
     return render_template('metricas.html', top_products_plot_url=top_products_plot_url,
                            hourly_sales_plot_url=hourly_sales_plot_url,
-                           average_sales_plot_url= average_sales_plot_url)
+                           average_sales_plot_url=average_sales_plot_url)
 
 
 def generate_bar_chart(labels, values, title, xlabel, ylabel):

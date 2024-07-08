@@ -38,7 +38,12 @@ $(document).ready(function() {
 
     // Manejar la búsqueda de productos
     $('#searchTerm').on('input', function() {
-        var term = $(this).val();
+        var term = $(this).val().trim();
+        if (term === "") {
+            $('#searchResults tbody').empty();
+            return; // No hacer la solicitud AJAX si el término de búsqueda está vacío
+        }
+
         $.ajax({
             url: '/buscar',
             method: 'POST',
