@@ -879,4 +879,3 @@ def run_server():
     # Ejecutar el servidor Flask
     app.run(host=ip, port=5002, debug=False)
 
-run_server()
