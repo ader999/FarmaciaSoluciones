@@ -19,6 +19,15 @@
         <img src="data:image/png;base64,{{ hourly_sales_plot_url_today }}" alt="Ventas Totales por Hora - Día Actual" class="img-fluid">
     </div>
 
+
+    <div class="text-center">
+        <h2 class="my-4">Ventas de los Últimos 7 Días</h2>
+        <img src="data:image/png;base64,{{ sales_last_7_days_plot_url }}" alt="Ventas de los Últimos 7 Días" class="img-fluid">
+        <p>
+            Este gráfico muestra las ventas totales realizadas en los últimos 7 días. Es útil para tener una visión reciente de las ventas y observar las tendencias de la última semana.
+        </p>
+    </div>
+
     <div class="text-center mt-4">
         <h2>Resumen del Día</h2>
         <p>Total de Ventas: {{ total_ventas }}</p>

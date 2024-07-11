@@ -4,29 +4,93 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="my-4">Métricas de Ventas</h1>
+    <h1 class="my-4 text-center">Métricas de Ventas</h1>
 
-    <h2 class="my-4">Top 5 Productos Más Vendidos</h2>
-    <div class="text-center">
-        <img src="data:image/png;base64,{{ top_products_plot_url }}" alt="Top 5 Productos Más Vendidos" class="img-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Top 8 Productos Más Vendidos</h2>
+                    <div>
+                        <img src="{{ top_products_plot_url }}" alt="Top 8 Productos Más Vendidos" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Ventas Totales por Hora</h2>
+                    <div>
+                        <img src="data:image/png;base64,{{ hourly_sales_plot_url }}" alt="Ventas Totales por Hora" class="img-fluid">
+                        <p class="card-text">
+                            Esta gráfica muestra cuánto se vende por cada hora durante el día, ayudando a identificar picos y valles de actividad. Es útil para gestionar el personal y el inventario eficientemente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h2 class="my-4">Ventas Totales por Hora</h2>
-    <div class="text-center">
-        <img src="data:image/png;base64,{{ hourly_sales_plot_url }}" alt="Ventas Totales por Hora" class="img-fluid">
-        <p>
-            Esta grafica se utiliza para mostrar cuánto se vende por cada hora durante el día, desde las 5 de la mañana hasta las 10 de la noche. Ayuda a identificar cuáles son las horas de mayor y menor venta, lo que es muy útil para tomar decisiones como ajustar los horarios del personal o gestionar el inventario de manera más eficiente. Con esta información, los gerentes pueden asegurarse de tener suficientes empleados y productos disponibles en las horas de mayor actividad, mejorando así el servicio al cliente y las ventas.
-        </p>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Promedio de Ventas por Usuario</h2>
+                    <div>
+                        <img src="data:image/png;base64,{{ average_sales_plot_url }}" alt="Promedio de Ventas por Usuario" class="img-fluid">
+                        <p class="card-text">
+                            Este gráfico muestra el promedio de ventas por usuario, útil para evaluar el desempeño individual de cada usuario en generación de ingresos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Ventas por Día de la Semana</h2>
+                    <div>
+                        <img src="data:image/png;base64,{{ sales_per_day_plot_url }}" alt="Ventas por Día de la Semana" class="img-fluid">
+                        <p class="card-text">
+                            Este gráfico muestra las ventas totales por día de la semana, ayudando a identificar patrones de ventas y planificar estrategias.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Ventas de los Últimos 30 Días</h2>
+                    <div>
+                        <img src="{{ sales_last_30_days_plot_url }}" alt="Ventas de los Últimos 30 Días" class="img-fluid">
+                        <p class="card-text">
+                            Este gráfico muestra las ventas totales de los últimos 30 días, agrupadas por día del mes, para observar tendencias a corto plazo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-
-    <h2 class="my-4">Promedio de Ventas por Usuario</h2>
-    <div class="text-center">
-        <img src="data:image/png;base64,{{ average_sales_plot_url }}" alt="Promedio de Ventas por Usuario" class="img-fluid">
-        <p>
-            este grafico te da una lista de usuarios junto con el promedio de sus ventas, ordenada de mayor a menor promedio de ventas. Es útil para analizar el desempeño de ventas de cada usuario y determinar quiénes están generando más ingresos en promedio.
-        </p>
+        <div class="col-md-12">
+            <div class="card my-4">
+                <div class="card-body text-center bg-light">
+                    <h2 class="card-title">Ventas por Mes</h2>
+                    <div>
+                        <img src="{{ sales_per_month_plot_url }}" alt="Ventas por Mes" class="img-fluid">
+                        <p class="card-text">
+                            Este gráfico muestra las ventas totales por mes del año, útil para identificar patrones estacionales y planificar estrategias a largo plazo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </div>

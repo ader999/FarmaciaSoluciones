@@ -63,7 +63,7 @@ class MetricsQueries:
         FROM registro_ventas
         GROUP BY nombre
         ORDER BY total_vendido DESC
-        LIMIT 5
+        LIMIT 8
         """
         result = self.conexion.run_query(query)
         return result.fetchall()
@@ -160,6 +160,85 @@ class MetricsQueries:
             print("Error:", str(e))
             return "Error al calcular ganancia hoy"
 
+    def get_sales_per_day_of_week(self):
+        query = """
+        SELECT 
+            STRFTIME('%w', SUBSTR(fecha, 1, 10)) as dia_semana, 
+            SUM(precio * cantidad) as total_ventas
+        FROM 
+            registro_ventas
+        GROUP BY 
+            dia_semana
+        ORDER BY 
+            dia_semana
+
+        """
+        result = self.conexion.run_query(query)
+        return result.fetchall()
+
+    def get_sales_last_7_days(self):
+        query = """
+        SELECT 
+            CASE 
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '0' THEN 'Domingo'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '1' THEN 'Lunes'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '2' THEN 'Martes'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '3' THEN 'Miércoles'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '4' THEN 'Jueves'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '5' THEN 'Viernes'
+                WHEN STRFTIME('%w', SUBSTR(fecha, 1, 10)) = '6' THEN 'Sábado'
+            END as dia_semana, 
+            SUM(precio * cantidad) as total_ventas
+        FROM 
+            registro_ventas
+        WHERE 
+            DATE(SUBSTR(fecha, 1, 10)) >= DATE('now', '-7 days')
+        GROUP BY 
+            dia_semana
+        ORDER BY 
+            STRFTIME('%w', SUBSTR(fecha, 1, 10))
+        """
+        result = self.conexion.run_query(query)
+        return result.fetchall()
+
+    def get_sales_last_30_days(self):
+        query = """
+                SELECT 
+                    STRFTIME('%d', SUBSTR(fecha, 1, 10)) as dia_mes, 
+                    SUM(precio * cantidad) as total_ventas,
+                    SUBSTR(fecha, 1, 10) as fecha_completa
+                FROM 
+                    registro_ventas
+                WHERE 
+                    DATE(SUBSTR(fecha, 1, 10)) >= DATE('now', '-30 days')
+                GROUP BY 
+                    fecha_completa
+                ORDER BY 
+                    fecha_completa DESC
+                """
+        result = self.conexion.run_query(query)
+        return result.fetchall()
+
+    def get_sales_per_month(self):
+        query = """
+        SELECT 
+            SUBSTR(fecha, 1, 4) AS year, 
+            SUBSTR(fecha, 6, 2) AS month, 
+            SUM(precio) AS total_ventas
+        FROM 
+            registro_ventas
+        GROUP BY 
+            year, month
+        ORDER BY 
+            year, month;
+        """
+        result = self.conexion.run_query(query)
+        return result.fetchall()
+
+
+
+
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '052020202024897nxndxnuuhuhssdhBBFVCXDFFGGHGHJJGH_:=======&&&&%%%$$$##"DSXD$$'
@@ -218,10 +297,24 @@ def index():
     hourly_sales_plot_url_today = generate_line_chart(hours_today, sales_today,
                                                       'Ventas Totales por Hora - Día Actual',
                                                       'Hora', 'Ventas Totales')
+
+    # Obtener datos de ventas de los últimos 7 días
+    sales_last_7_days_data = queries.get_sales_last_7_days()
+    last_7_days = [row[0] for row in sales_last_7_days_data]
+    sales_last_7_days = [row[1] if row[1] is not None else 0 for row in sales_last_7_days_data]
+
+    # Generar gráfico de ventas de los últimos 7 días
+    sales_last_7_days_plot_url = generate_bar_chart(last_7_days, sales_last_7_days,
+                                                    'Ventas de los Últimos 7 Días',
+                                                    'Día de la Semana', 'Ventas Totales')
+
+
     return render_template('index.html',
                            hourly_sales_plot_url_today=hourly_sales_plot_url_today,
+                           sales_last_7_days_plot_url=sales_last_7_days_plot_url,
                            total_ventas=total_ventas,
-                           total_ganancias=queries.calcular_ganancia_hoy())
+                           total_ganancias=queries.calcular_ganancia_hoy()
+                           )
 
 @app.route('/nuevo_producto', methods=['GET', 'POST'])
 @login_required
@@ -446,8 +539,8 @@ def metricas():
     quantities = [row[1] if row[1] is not None else 0 for row in top_products_data]
 
     # Generar gráfico de top 5 productos más vendidos
-    top_products_plot_url = generate_bar_chart(products, quantities,
-                                               'Top 5 Productos Más Vendidos',
+    top_products_plot_url = generate_bar_chart2(products, quantities,
+                                               'Top 8 Productos Más Vendidos',
                                                'Productos', 'Cantidad Vendida')
 
     # Obtener datos de las ventas por hora
@@ -470,9 +563,48 @@ def metricas():
                                                            'Promedio de Ventas por Usuario',
                                                            'Promedio de Ventas', 'Usuarios')
 
-    return render_template('metricas.html', top_products_plot_url=top_products_plot_url,
+
+
+    # Obtener datos de ventas por día de la semana
+    sales_per_day_data = queries.get_sales_per_day_of_week()
+    days_of_week = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    sales_per_day = [row[1] if row[1] is not None else 0 for row in sales_per_day_data]
+
+    # Generar gráfico de ventas por día de la semana
+    sales_per_day_plot_url = generate_bar_chart(days_of_week, sales_per_day,
+                                                'Ventas por Día de la Semana',
+                                                'Día de la Semana', 'Ventas Totales')
+
+    # Obtener datos de ventas de los últimos 30 días
+    sales_last_30_days_data = queries.get_sales_last_30_days()
+    last_30_days = [f"{row[2]} ({row[0]})" for row in sales_last_30_days_data]
+    sales_last_30_days = [row[1] if row[1] is not None else 0 for row in sales_last_30_days_data]
+
+    # Generar gráfico de ventas de los últimos 30 días
+    sales_last_30_days_plot_url = generate_bar_chart2(last_30_days, sales_last_30_days,
+                                                     'Ventas de los Últimos 30 Días',
+                                                     'Día del Mes', 'Ventas Totales')
+
+    # Obtener datos de ventas por mes
+    sales_per_month_data = queries.get_sales_per_month()
+    months = [f"{int(row[1])}/{int(row[0])}" for row in sales_per_month_data]
+    sales_per_month = [row[2] if row[2] is not None else 0 for row in sales_per_month_data]
+
+    # Generar gráfico de ventas por mes
+    sales_per_month_plot_url = generate_bar_chart2(months, sales_per_month,
+                                                  'Ventas por Mes',
+                                                  'Mes del Año', 'Ventas Totales')
+
+    # Obtener datos del promedio de ventas por mes
+
+
+    return render_template('metricas.html',
+                           top_products_plot_url=top_products_plot_url,
                            hourly_sales_plot_url=hourly_sales_plot_url,
-                           average_sales_plot_url=average_sales_plot_url)
+                           average_sales_plot_url=average_sales_plot_url,
+                           sales_per_day_plot_url=sales_per_day_plot_url,
+                           sales_last_30_days_plot_url=sales_last_30_days_plot_url,
+                           sales_per_month_plot_url=sales_per_month_plot_url)
 
 
 def generate_bar_chart(labels, values, title, xlabel, ylabel):
@@ -493,6 +625,40 @@ def generate_bar_chart(labels, values, title, xlabel, ylabel):
     return plot_url
 
 
+def generate_bar_chart2(x_data, y_data, title, x_label, y_label):
+    fig, ax = plt.subplots()
+
+    cleaned_x_data = []
+    cleaned_y_data = []
+    for i in range(len(x_data)):
+        if y_data[i] is not None:
+            cleaned_x_data.append(x_data[i])
+            cleaned_y_data.append(y_data[i])
+
+    ax.bar(range(len(x_data)), y_data,
+           color='blue')  # Usar rango de la longitud de x_data para las posiciones de las barras
+
+    ax.set_title(title)
+    ax.set_xlabel(x_label)
+    ax.set_ylabel(y_label)
+
+    # Establecer los ticks en el eje X
+    ax.set_xticks(range(len(x_data)))
+
+    # Formatear las etiquetas del eje X para mostrar solo el día del mes
+    ax.set_xticklabels([label.split(' ')[0].split('-')[-1] for label in x_data], rotation=45, fontsize=8)
+
+    # Ajustar el espaciado para que las etiquetas no se corten
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.getvalue()).decode('utf-8')
+    buf.close()
+    return 'data:image/png;base64,{}'.format(image_base64)
+
+
 def generate_line_chart(x_data, y_data, title, xlabel, ylabel):
     plt.figure(figsize=(10, 6))
     plt.plot(x_data, y_data, marker='o', linestyle='-', color='b')
@@ -500,6 +666,26 @@ def generate_line_chart(x_data, y_data, title, xlabel, ylabel):
     plt.ylabel(ylabel)
     plt.title(title)
     plt.xticks(rotation=45)
+
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    plot_url = base64.b64encode(img.getvalue()).decode()
+    plt.close()
+    return plot_url
+
+def generate_line_chart2(data):
+    plt.figure(figsize=(10, 6))
+    for year, group_data in data.items():
+        x_data = [f"{row['month']}-{year}" for row in group_data]
+        y_data = [row['average_sales'] for row in group_data]
+        plt.plot(x_data, y_data, marker='o', linestyle='-', label=f'Year {year}')
+
+    plt.xlabel('Month-Year')
+    plt.ylabel('Average Sales')
+    plt.title('Comparison of Average Sales per Month for Different Years')
+    plt.xticks(rotation=45)
+    plt.legend()
 
     img = io.BytesIO()
     plt.savefig(img, format='png')
@@ -654,10 +840,11 @@ def run_server():
 
     # Obtener la dirección IP
     ip = Obtener_ip()
-
-    # Abrir el navegador automáticamente
-    webbrowser.open(f"http://{ip}:5002")
+    abrir_navegador = False
+    if abrir_navegador == True:
+        webbrowser.open(f"http://{ip}:5002")
 
     # Ejecutar el servidor Flask
     app.run(host=ip, port=5002, debug=False)
 
+run_server()

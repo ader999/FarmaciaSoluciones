@@ -3,10 +3,18 @@
 {% block title %}Inicio - Mi Proyecto Flask{% endblock %}
 
 {% block content %}
-    <h1>Login</h1>
-    <form method="POST" action="{{ url_for('login') }}">
-        <label for="password">Contraseña:</label>
-        <input type="password" name="password" required><br>
-        <button type="submit">Login</button>
-    </form>
+<div class="card mx-auto mt-5" style="max-width: 400px;">
+    <div class="card-header">
+        <h1 class="h5 mb-0">Login</h1>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña:</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

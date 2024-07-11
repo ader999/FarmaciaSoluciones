@@ -32,7 +32,7 @@
 
 <nav class="navbar bg-body-tertiary fixed-top">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">Farmacia Soluciones</a>
+    <a class="navbar-brand" href="/">Farmacia Soluciones</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -43,36 +43,69 @@
       </div>
       <div class="offcanvas-body">
         <ul class="navbar-nav flex-grow-1 pe-3">
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Inicio</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/facturar">Facturar</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/administrar_producto">Administrar producto</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/nuevo_producto">Agregar nuevo producto</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/registros">Registro</a>
-          </li><li class="nav-item">
-            <a class="nav-link" href="/metricas">Metricas</a>
-          </li>
-
-          <li class="nav-item">
-            <a class="nav-link" href="/notificaciones">Eventos</a>
-          </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              {{ session['user_name'] }}
-            </a>
+
+              <div class="d-flex align-items-center" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="{{ url_for('static', filename='img/usr.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="#" >
+                  {{ session['user_name'] }}
+                </a>
+              </div>
             <ul class="dropdown-menu">
 
-              <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+              <li>
+                  <div class="d-flex align-items-center">
+                      <img src="{{ url_for('static', filename='img/cr.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                      <a class="nav-link ms-2" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                  </div>
+              </li>
             </ul>
           </li>
+          <li class="nav-item">
+            <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/inicio.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/">Inicio</a>
+              </div>
+          </li>
+          <li class="nav-item">
+              <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/archivo-factura-dolar.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/facturar">Facturar</a>
+              </div>
+          </li>
+
+          <li class="nav-item">
+              <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/lista.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/administrar_producto">Administrar producto</a>
+              </div>
+          </li>
+          <li class="nav-item">
+              <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/ag.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/nuevo_producto">Agregar nuevo producto</a>
+              </div>
+          </li>
+          <li class="nav-item">
+              <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/rg.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/registros">Registro</a>
+              </div>
+          </li>
+            <li class="nav-item">
+                <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/ee.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/metricas">Metricas</a>
+                </div>
+          </li>
+
+          <li class="nav-item">
+              <div class="d-flex align-items-center">
+                  <img src="{{ url_for('static', filename='img/ev.png') }}" alt="Icono de Usuario" style="height: 24px; width: 24px;">
+                  <a class="nav-link ms-2" href="/notificaciones">Eventos</a>
+              </div>
+          </li>
+
         </ul>
 
       </div>
