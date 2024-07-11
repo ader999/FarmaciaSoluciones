@@ -2909,8 +2909,34 @@ class PedirHora:
 
 
 if __name__ == '__main__':
+    def leer_configuracion():
+        nombre_archivo = 'configuraciones.txt'
+        try:
+            with open(nombre_archivo, 'r') as archivo:
+                for linea in archivo:
+                    if linea.startswith('pedir_hora'):
+                        _, valor = linea.split('=')
+                        return valor.strip()  # Elimina espacios en blanco alrededor del valor
+            # Si no se encuentra la línea 'pedir_hora', podemos añadirla por defecto
+            with open(nombre_archivo, 'a') as archivo:
+                archivo.write('pedir_hora = True\n')
+                return 'True'
+        except FileNotFoundError:
+            print(f"El archivo '{nombre_archivo}' no existe. Creando archivo...")
+            with open(nombre_archivo, 'w') as archivo:
+                archivo.write('pedir_hora = False\n')
+                return 'False'
 
-        verificar()
+
+    # Ejemplo de uso:
+    valor_pedir_hora = leer_configuracion()
+    print(f"Valor de 'pedir_hora': {valor_pedir_hora}")
+    if valor_pedir_hora == 'True':
+        PedirHora().__int__()
+
+    else: verificar()
+
+
 
 
 
