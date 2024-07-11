@@ -19,6 +19,7 @@
                     <th>Fecha de Vencimiento</th>
                     <th>Descuento</th>
                     <th>Cantidad por Mayor</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,6 +33,10 @@
                     <td>{{ product[4] }}</td>
                     <td>{{ product[7] }}</td>
                     <td>{{ product[8] }}</td>
+                    <td>
+                        <!-- Botón para actualizar producto -->
+                        <button class="btn btn-primary btn-sm actualizar-producto" data-id="{{ product[0] }}">Actualizar</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -39,8 +44,93 @@
     </div>
 </div>
 
+<!-- Modal para actualizar producto -->
+<div class="modal fade" id="actualizarProductoModal" tabindex="-1" role="dialog" aria-labelledby="actualizarProductoModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="actualizarProductoModalLabel">Actualizar Producto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="formActualizarProducto">
+                    <input type="hidden" id="productId" name="id">
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio</label>
+                        <input type="number" class="form-control" id="precio" name="precio" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_vencimiento">Fecha de Vencimiento</label>
+                        <input type="date" class="form-control" id="fecha_vencimiento" name="fecha_vencimiento" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descuento">Descuento</label>
+                        <input type="number" class="form-control" id="descuento" name="descuento">
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad_xmayor">Cantidad por Mayor</label>
+                        <input type="number" class="form-control" id="cantidad_xmayor" name="cantidad_xmayor">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="guardarCambios">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(document).ready(function() {
+    // Manejar clic en botón "Actualizar"
+    $(document).on('click', '.actualizar-producto', function() {
+        var productId = $(this).data('id');
+        // Llenar el formulario con los datos del producto
+        var productRow = $(this).closest('tr');
+        $('#productId').val(productId);
+        $('#nombre').val(productRow.find('td:eq(1)').text());
+        $('#precio').val(productRow.find('td:eq(2)').text());
+        $('#cantidad').val(productRow.find('td:eq(3)').text());
+        $('#fecha_vencimiento').val(productRow.find('td:eq(4)').text());
+        $('#descuento').val(productRow.find('td:eq(5)').text());
+        $('#cantidad_xmayor').val(productRow.find('td:eq(6)').text());
+        // Mostrar modal de actualización
+        $('#actualizarProductoModal').modal('show');
+    });
+
+    // Guardar cambios del producto
+    $('#guardarCambios').click(function() {
+        $.ajax({
+            type: 'POST',
+            url: '/actualizar_producto',
+            data: $('#formActualizarProducto').serialize(),
+            success: function(response) {
+                alert('Producto actualizado correctamente.');
+                // Aquí puedes actualizar la tabla o realizar otras acciones necesarias
+                // Recargar la página o actualizar solo la fila modificada, etc.
+                $('#actualizarProductoModal').modal('hide');
+                // Actualizar la tabla de productos (opcional)
+                buscarProductos(); // Llamar a función de búsqueda para actualizar la tabla
+            },
+            error: function(xhr, status, error) {
+                alert('Error al actualizar el producto.');
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
+    // Buscar productos al escribir en el campo de búsqueda
     $('#searchTerm').on('keyup', function() {
         var term = $(this).val();
         $.ajax({
@@ -59,15 +149,53 @@ $(document).ready(function() {
                         <td>${product[4]}</td>
                         <td>${product[7]}</td>
                         <td>${product[8]}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm actualizar-producto" data-id="${product[0]}">Actualizar</button>
+                        </td>
                     </tr>`;
                 });
                 $('#searchResults tbody').html(rows);
+            },
+            error: function(xhr, status, error) {
+                alert('Error al buscar productos.');
+                console.error(xhr.responseText);
             }
         });
     });
+
+    // Función para buscar productos
+    function buscarProductos() {
+        var term = $('#searchTerm').val();
+        $.ajax({
+            type: 'POST',
+            url: '/buscar_producto',
+            data: { term: term },
+            success: function(response) {
+                var rows = '';
+                response.forEach(function(product) {
+                    rows += `
+                    <tr>
+                        <td>${product[0]}</td>
+                        <td>${product[1]}</td>
+                        <td>${product[2]}</td>
+                        <td>${product[3]}</td>
+                        <td>${product[4]}</td>
+                        <td>${product[7]}</td>
+                        <td>${product[8]}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm actualizar-producto" data-id="${product[0]}">Actualizar</button>
+                        </td>
+                    </tr>`;
+                });
+                $('#searchResults tbody').html(rows);
+            },
+            error: function(xhr, status, error) {
+                alert('Error al buscar productos.');
+                console.error(xhr.responseText);
+            }
+        });
+    }
 });
 </script>
 
-
 {% endblock %}
-

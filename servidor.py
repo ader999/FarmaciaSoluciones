@@ -773,10 +773,42 @@ def administrar_producto():
     products = ConecionSql().run_query("SELECT * FROM product LIMIT 50").fetchall()
     return render_template('administrar_producto.html', products=products)
 
+
+@app.route('/actualizar_producto', methods=['POST'])
+@login_required
+@permission_required('root')
+def actualizar_producto():
+    if request.method == 'POST':
+        # Recuperar los datos del producto actualizado desde la solicitud POST
+        product_id = request.form['id']
+        nombre = request.form['nombre']
+        precio = request.form['precio']
+        cantidad = request.form['cantidad']
+        fecha_vencimiento = request.form['fecha_vencimiento']
+        descuento = request.form['descuento']
+        cantidad_xmayor = request.form['cantidad_xmayor']
+
+        # Ejemplo de actualización en la base de datos (debes ajustar según tu implementación)
+        update_query = """
+            UPDATE product 
+            SET name=?, price=?, cantidad=?, fecha_vencimiento=?, descuento=?, cantidad_xmayor=? 
+            WHERE id=?
+        """
+        parameters = (nombre, precio, cantidad, fecha_vencimiento, descuento, cantidad_xmayor, product_id)
+
+        # Ejecutar la consulta SQL para actualizar el producto
+        ConecionSql().run_query(update_query, parameters)
+
+        # Retornar una respuesta de éxito
+        return jsonify({'message': 'Producto actualizado correctamente.'})
+
+    # Manejo para otros casos (aunque no debería alcanzarse aquí en este contexto)
+    return jsonify({'error': 'Método no permitido'}), 405
+
+
 @app.route('/buscar_producto', methods=['POST'])
 def buscar_producto():
     term = request.form['term']
-    print(f"Buscando término: {term}")  # Agregar print para debug
     query = "SELECT * FROM product WHERE name LIKE ?"
     parameters = ('%' + term + '%',)
     results = ConecionSql().run_query(query, parameters).fetchall()
@@ -847,3 +879,4 @@ def run_server():
     # Ejecutar el servidor Flask
     app.run(host=ip, port=5002, debug=False)
 
+run_server()
